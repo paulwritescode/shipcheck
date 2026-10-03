@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Spec-consistency reminder",
+      "trigger": "PostFileSave",
+      "description": "When requirements.md or design.md is edited, remind the agent to keep the spec triplet and implementation consistent.",
+      "matcher": "\\.kiro/specs/shipcheck/(requirements|design)\\.md$",
+      "action": {
+        "type": "agent",
+        "prompt": "A ShipCheck spec file (requirements.md or design.md) was just edited. Check that the three spec documents stay consistent: every requirement clause referenced in design.md and tasks.md still exists, each of the 34 correctness properties still maps to a requirement, and tasks.md still covers the changed scope. Flag any requirement, design property, or task that is now orphaned or contradicted, and confirm the pure-core / advisor-non-authoritative invariants still hold."
+      }
+    }
+  ]
+}

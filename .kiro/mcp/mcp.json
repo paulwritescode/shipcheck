@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "shipcheck-github-context": {
+      "command": "uvx",
+      "args": ["mcp-server-fetch"],
+      "env": {
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      },
+      "disabled": true,
+      "autoApprove": [],
+      "_comment": "Read-only external-context server for the ShipCheck Advisor. See README.md in this directory. Disabled by default: the live/public demo runs the deterministic FallbackProvider and needs no external context. In production the SAME read-only context (public repository summaries, open issues, recent PRs, release notes, documentation pages, public GitHub references) is orchestrated APP-SIDE inside the Go analyze Lambda (internal/mcp) rather than by a standalone server, so the model never connects to any external system directly (Req 17.4, 17.5). Fetches are restricted to the allowlist in internal/security/allowlist.go."
+    }
+  }
+}

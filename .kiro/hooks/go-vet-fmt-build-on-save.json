@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Go vet, fmt check, build and test on save",
+      "trigger": "PostFileSave",
+      "description": "On saving a backend Go file, check formatting then run go vet, build, and the test suite scoped to the backend packages.",
+      "matcher": "cmd/.*\\.go$|internal/.*\\.go$",
+      "action": {
+        "type": "command",
+        "command": "gofmt -l cmd internal | (grep -q . && { echo 'gofmt needed:'; gofmt -l cmd internal; exit 1; } || true) && go vet ./cmd/... ./internal/... && go build ./cmd/... ./internal/... && go test ./cmd/... ./internal/...",
+        "timeout": 180
+      }
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Run readiness property tests on domain-core change",
+      "trigger": "PostFileSave",
+      "description": "When the pure domain core or any property test changes, run the 34 correctness properties hard (1000 checks) so scoring invariants are guarded continuously.",
+      "matcher": "internal/domain/.*\\.go$|internal/advisor/.*_property_test\\.go$|internal/security/.*_property_test\\.go$|internal/repo/.*_property_test\\.go$",
+      "action": {
+        "type": "command",
+        "command": "go test ./internal/domain/... ./internal/advisor/... ./internal/security/... ./internal/repo/... -run Property -rapid.checks=1000",
+        "timeout": 300
+      }
+    }
+  ]
+}

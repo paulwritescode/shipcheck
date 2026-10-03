@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "SPA lint and type-check on save",
+      "trigger": "PostFileSave",
+      "description": "On saving a TypeScript/TSX file in the SPA, run the web lint and type-check scripts.",
+      "matcher": "web/.*\\.(ts|tsx)$",
+      "action": {
+        "type": "command",
+        "command": "cd web && npm run lint && npm run typecheck",
+        "timeout": 180
+      }
+    }
+  ]
+}

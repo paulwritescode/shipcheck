@@ -1,0 +1,59 @@
+# ShipCheck .gitignore — hardened for a PUBLIC repository.
+# Goal: never commit a secret, while keeping cdk.json, CDK code, and the
+# entire .kiro/ tree tracked (the .kiro/ folder is required for submission).
+
+# ---- Secrets & credentials (never commit) ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+.aws/
+aws.json
+credentials
+secrets.json
+*.secret
+
+# ---- AWS CDK generated artifacts ----
+cdk.out/
+cdk.context.json
+.cdk.staging/
+
+# ---- Go build artifacts ----
+/bin/
+/dist/
+bootstrap
+*.exe
+*.test
+*.out
+coverage.out
+coverage.html
+
+# ---- pgregory.net/rapid replay artifacts (written on a failing property) ----
+testdata/rapid/
+**/testdata/rapid/
+
+# ---- Node / React SPA (web/) ----
+node_modules/
+web/node_modules/
+web/dist/
+web/.vite/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ---- Editor / OS ----
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+
+# NOTE: cdk.json, infra/ source, and .kiro/ are intentionally NOT ignored.
+
+# TypeScript incremental build info
+web/tsconfig.tsbuildinfo
+*.tsbuildinfo

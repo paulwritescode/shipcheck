@@ -1,0 +1,22 @@
+{
+  "name": "shipcheck",
+  "displayName": "ShipCheck Launch Readiness",
+  "version": "0.1.0",
+  "description": "Reusable launch-readiness review methodology. Bundles evidence-based readiness-review steering and a launch-review workflow guide so any repository can run the same deterministic, evidence-first release gate ShipCheck uses: a pure readiness engine is the sole authority for status, and an AI advisor explains and recommends but never decides.",
+  "keywords": [
+    "launch readiness",
+    "release gate",
+    "go/no-go",
+    "checklist",
+    "risk register",
+    "launch review",
+    "readiness review",
+    "evidence"
+  ],
+  "steering": [
+    "steering/readiness-review.md"
+  ],
+  "skills": [
+    "skills/launch-review.md"
+  ]
+}
