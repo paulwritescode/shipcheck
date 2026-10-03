@@ -105,6 +105,10 @@ func NewShipCheckStack(scope constructs.Construct, id string, props *awscdk.Stac
 		Integration: integration,
 	})
 
+	// The HTTP API endpoint host (strip the https:// scheme for the origin).
+	apiDomain := awscdk.Fn_Select(jsii.Number(2),
+		awscdk.Fn_Split(jsii.String("/"), httpApi.ApiEndpoint(), jsii.Number(3)))
+
 	// --- S3 + CloudFront serving the SPA (HTTPS by default) ---
 	siteBucket := awss3.NewBucket(stack, jsii.String("SpaBucket"), &awss3.BucketProps{
 		RemovalPolicy:     awscdk.RemovalPolicy_DESTROY,
@@ -112,25 +116,37 @@ func NewShipCheckStack(scope constructs.Construct, id string, props *awscdk.Stac
 		BlockPublicAccess: awss3.BlockPublicAccess_BLOCK_ALL(), // served only via CloudFront OAC
 	})
 
+	// API origin: the API Gateway HTTP API, reached over HTTPS.
+	apiOrigin := awscloudfrontorigins.NewHttpOrigin(apiDomain, &awscloudfrontorigins.HttpOriginProps{
+		ProtocolPolicy: awscloudfront.OriginProtocolPolicy_HTTPS_ONLY,
+	})
+
 	distribution := awscloudfront.NewDistribution(stack, jsii.String("Spa"), &awscloudfront.DistributionProps{
 		DefaultBehavior: &awscloudfront.BehaviorOptions{
 			Origin:               awscloudfrontorigins.S3BucketOrigin_WithOriginAccessControl(siteBucket, nil),
 			ViewerProtocolPolicy: awscloudfront.ViewerProtocolPolicy_REDIRECT_TO_HTTPS,
 		},
-		DefaultRootObject: jsii.String("index.html"),
-		// SPA fallback: unknown routes return index.html so hash routing works.
-		ErrorResponses: &[]*awscloudfront.ErrorResponse{
-			{
-				HttpStatus:         jsii.Number(403),
-				ResponseHttpStatus: jsii.Number(200),
-				ResponsePagePath:   jsii.String("/index.html"),
-			},
-			{
-				HttpStatus:         jsii.Number(404),
-				ResponseHttpStatus: jsii.Number(200),
-				ResponsePagePath:   jsii.String("/index.html"),
+		// Route /api/* to the API Gateway origin on the SAME CloudFront domain,
+		// so the SPA's relative /api/* calls work with no CORS and no separate
+		// endpoint. The API is dynamic: disable caching and forward everything.
+		AdditionalBehaviors: &map[string]*awscloudfront.BehaviorOptions{
+			"/api/*": {
+				Origin:               apiOrigin,
+				ViewerProtocolPolicy: awscloudfront.ViewerProtocolPolicy_REDIRECT_TO_HTTPS,
+				AllowedMethods:       awscloudfront.AllowedMethods_ALLOW_ALL(),
+				CachePolicy:          awscloudfront.CachePolicy_CACHING_DISABLED(),
+				// Forward all viewer headers (except Host, which must be the
+				// origin's) plus the query string and body to the API.
+				OriginRequestPolicy: awscloudfront.OriginRequestPolicy_ALL_VIEWER_EXCEPT_HOST_HEADER(),
 			},
 		},
+		DefaultRootObject: jsii.String("index.html"),
+		// No SPA error-fallback is needed: the app uses HASH routing, so the
+		// browser only ever requests "/" and static assets from the origin —
+		// every in-app route lives in the "#/..." fragment the server never
+		// sees. A distribution-wide 403/404 -> index.html rewrite would also
+		// mask legitimate API 404s (e.g. a disabled share token), so it is
+		// deliberately omitted.
 	})
 
 	// Deploy the built SPA assets (web/dist) to the bucket.
