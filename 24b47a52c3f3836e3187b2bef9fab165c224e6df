@@ -1,0 +1,12 @@
+Verification evidence for v0.1.0 (all green):
+- make ci: gofmt check + go vet + go build + go test + secret-scan — pass
+- Property suite: 34/34 properties at `-rapid.checks=1000` across
+  internal/{domain,repo,advisor,security} — pass
+- Lambda cross-compile: GOOS=linux GOARCH=arm64 CGO_ENABLED=0
+  go build -tags lambda.norpc — produces infra/lambda-build/bootstrap
+- infra/ CDK module: `go build ./...` — pass
+- SPA (web/): 13 tests + typecheck + lint + production build — pass
+
+Scope note: Go tooling scoped to ./cmd/... ./internal/...; infra/ and web/ are
+separate modules/toolchains. Removed a stale rapid replay artifact
+(testdata/rapid) and gitignored that path.
